@@ -26,10 +26,10 @@ const UserSchema = new mongoose.Schema({
   startGame: {
     type: Date,
   },
-  locationUpdate:{
+  locationUpdate: {
     type: Date,
   },
-  started:{
+  started: {
     type: Boolean,
     default: false,
   },
@@ -39,7 +39,7 @@ const UserSchema = new mongoose.Schema({
   },
   latitude: {
     type: Number, // Assuming I want to store latitude as a number
-    default : 0,
+    default: 0,
   },
   longitude: {
     type: Number, // Assuming I want to store longitude as a number

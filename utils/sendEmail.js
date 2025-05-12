@@ -1,4 +1,3 @@
-console.log("RESEND_API_KEY:", process.env.RESEND_API);
 const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API); // Replace with your Resend API key
 

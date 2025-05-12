@@ -1,11 +1,10 @@
-
 const express = require("express");
 require("dotenv").config();
 const bodyParser = require("body-parser");
 const cors = require("cors");
 const userModel = require("./models/user");
 
-const otpRoutes = require('./routes/otp.routes.js');
+const otpRoutes = require("./routes/otp.routes.js");
 
 const jwt = require("jsonwebtoken");
 const app = express();
@@ -45,7 +44,7 @@ app.use(bodyParser.json());
 app.use("/user", userRouter);
 
 // OTP API
-app.use('/api/otp', otpRoutes);
+app.use("/api/otp", otpRoutes);
 
 // basic get request
 app.get("/", async (req, res) => {
@@ -59,7 +58,10 @@ io.on("connection", (socket) => {
       const userId = jwt.verify(data.token, process.env.SECRET_KEY).userId;
       const user = await userModel.findById(userId);
       if (!user) {
-        console.log("Failure: Location not saved , User not found with id :" ,userId )
+        console.log(
+          "Failure: Location not saved , User not found with id :",
+          userId
+        );
         return res.status(404).json({ message: "User not found" });
       }
       user.latitude = data.latitude;
