@@ -10,9 +10,9 @@ const {
   refreshLocation,
   leaderboard,
   avatarGet,
-  timer
+  timer,
 } = require("../controllers/user");
-//Signup route 
+//Signup route
 router.post("/signup", signup);
 //Login route
 router.post("/login", login);
@@ -22,12 +22,13 @@ router.post("/store-avatar", authenticateToken, avatarSelection);
 router.get("/generate-qr", authenticateToken, qrSelection);
 //Scan Qr
 router.post("/scan-qrcode", authenticateToken, scanQr);
-//Refresh location route 
+//Refresh location route
 router.get("/refresh-location", authenticateToken, refreshLocation);
-//Access leaderboard values 
+//Access leaderboard values
 router.get("/leaderboard", authenticateToken, leaderboard);
-//Get avatar of the user 
-router.get("/get-avatar",authenticateToken, avatarGet )
-//send timer details 
-router.get("/timer",authenticateToken,timer)
+//Get avatar of the user
+router.get("/get-avatar", authenticateToken, avatarGet);
+//send timer details
+router.get("/timer", authenticateToken, timer);
+
 module.exports = router;

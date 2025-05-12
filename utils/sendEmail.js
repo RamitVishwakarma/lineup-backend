@@ -1,14 +1,13 @@
-console.log('RESEND_API_KEY:', process.env.RESEND_API);
-const { Resend } = require('resend');
+console.log("RESEND_API_KEY:", process.env.RESEND_API);
+const { Resend } = require("resend");
 const resend = new Resend(process.env.RESEND_API); // Replace with your Resend API key
 
 const sendEmail = async (email, otp) => {
   try {
     const data = await resend.emails.send({
-      
-      from: 'Lineup@resend.dev',
+      from: "Lineup@resend.dev",
       to: email,
-      subject: 'Your OTP Verification Code',
+      subject: "Your OTP Verification Code",
       html: `
         <div style="font-family: Arial, sans-serif; padding: 20px;">
           <h2>OTP Verification</h2>
@@ -17,13 +16,13 @@ const sendEmail = async (email, otp) => {
           <p>This code will expire in 5 minutes.</p>
           <p>If you didn't request this code, please ignore this email.</p>
         </div>
-      `
+      `,
     });
 
     return { success: true, data };
   } catch (error) {
-    console.error('Email sending failed:', error);
-    throw new Error('Failed to send email: ' + error.message);
+    console.error("Email sending failed:", error);
+    throw new Error("Failed to send email: " + error.message);
   }
 };
 

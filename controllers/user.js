@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 require("dotenv").config();
 const { ObjectId } = require("mongodb");
-const logData=(status,functionName,user_data)=>{
-  console.log(status ,":",functionName, ", user: ",user_data)
-}
+const logData = (status, functionName, user_data) => {
+  console.log(status, ":", functionName, ", user: ", user_data);
+};
 const calculateDistance = (lat1, lon1, lat2, lon2) => {
   const R = 6371; // Earth radius in kilometers
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -55,11 +55,11 @@ const signup = async (req, res) => {
     // Check if the email is already registered
     const existingUser = await userModel.findOne({ zealId });
     if (existingUser) {
-      logData("Failure","Signup : zealId already registered ",{
-        "id": existingUser._id,
-        "name":existingUser.name,
-        "email":existingUser.email,
-        "zealId":existingUser.zealId
+      logData("Failure", "Signup : zealId already registered ", {
+        id: existingUser._id,
+        name: existingUser.name,
+        email: existingUser.email,
+        zealId: existingUser.zealId,
       });
       return res.status(400).json({ message: "ZealId is already registered" });
     }
@@ -73,20 +73,22 @@ const signup = async (req, res) => {
       name,
       zealId,
       membersFound: 0,
-      locationUpdate: new Date()
+      locationUpdate: new Date(),
     });
 
     let user = await newUser.save();
-    logData("Success","Signup ",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Signup ", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY);
-    res.status(201).json({ message: "Signup successful", token: token ,scannedCodes:[]});
+    res
+      .status(201)
+      .json({ message: "Signup successful", token: token, scannedCodes: [] });
   } catch (error) {
-    console.log("Failure : Signup , Internal Server Error")
+    console.log("Failure : Signup , Internal Server Error");
     console.error(error);
     res.status(500).json({ message: "Internal Server Error" });
   }
@@ -99,14 +101,20 @@ const login = async (req, res) => {
 
     const user = await userModel.findOne({ zealId });
     if (!user) {
-      console.log("Failure , Login : Invalid zeal Id or password, zealId :" , zealId)
+      console.log(
+        "Failure , Login : Invalid zeal Id or password, zealId :",
+        zealId
+      );
       return res.status(401).json({ message: "Invalid zeal Id or password" });
     }
 
     // Compare the password
     const isPasswordValid = await bcrypt.compare(password, user.password);
     if (!isPasswordValid) {
-      console.log("Failure , Login : Invalid zeal Id or password , zealId :",zealId )
+      console.log(
+        "Failure , Login : Invalid zeal Id or password , zealId :",
+        zealId
+      );
       return res.status(401).json({ message: "Invalid zeal Id or password" });
     }
 
@@ -114,11 +122,11 @@ const login = async (req, res) => {
     const token = jwt.sign({ userId: user._id }, process.env.SECRET_KEY);
     user.locationUpdate = new Date();
     await user.save();
-    logData("Success","Login ",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Login ", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(201).json({
       message: "Login successful",
@@ -128,7 +136,7 @@ const login = async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    console.log("Failure , Login : Internal Server Error")
+    console.log("Failure , Login : Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -140,23 +148,26 @@ const avatarSelection = async (req, res) => {
     // Find the user by userId
     const user = await userModel.findById(userId);
     if (!user) {
-      console.log("Failure : Avatar Selection , user not found , userId :", userId)
+      console.log(
+        "Failure : Avatar Selection , user not found , userId :",
+        userId
+      );
       return res.status(404).json({ message: "User not found" });
     }
 
     // Update the user's avatar
     user.avatar = avatar;
     await user.save();
-    logData("Success","Avatar Stored ",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Avatar Stored ", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(200).json({ message: "Avatar stored successfully" });
   } catch (error) {
     console.error(error);
-    console.log("Failure , Avatar selection , Internal Server Error")
+    console.log("Failure , Avatar selection , Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -167,19 +178,22 @@ const qrSelection = async (req, res) => {
     // Find the user by userId
     const user = await userModel.findById(userId);
     if (!user) {
-      console.log("Failure : Qr code generation : User not found with userId : ",userId)
+      console.log(
+        "Failure : Qr code generation : User not found with userId : ",
+        userId
+      );
       return res.status(404).json({ message: "User not found" });
     }
-    logData("Success","Qr code generated ",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Qr code generated ", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(200).json({ code: userId });
   } catch (error) {
     console.error(error);
-    console.log("Failure , Qr code generation , Internal Server Error")
+    console.log("Failure , Qr code generation , Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -187,70 +201,84 @@ const scanQr = async (req, res) => {
   try {
     const { userId } = req.user;
     const user = await userModel.findById(userId);
-    const endDate = new Date(`2024-05-${process.env.EndDate}T${process.env.EndHours}:${process.env.EndMinutes}:00`);
+    const endDate = new Date(
+      `2024-05-${process.env.END_DATE}T${process.env.END_HOURS}:${process.env.END_MINUTES}:00`
+    );
     const currentTime = new Date();
     if (currentTime >= endDate) {
-      logData("Failure","Qr code scanning : Time Up ",{
-        "id":user._id,
-        "name":user.name,
-        "email":user.email,
-        "zealId":user.zealId
+      logData("Failure", "Qr code scanning : Time Up ", {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        zealId: user.zealId,
       });
-  
-      return res.status(200).json({ message: "Time Up",scannedCodes:user.scannedCodes });
+
+      return res
+        .status(200)
+        .json({ message: "Time Up", scannedCodes: user.scannedCodes });
     }
     const { code } = req.body;
     const isValidObjectId = /^[0-9a-fA-F]{24}$/.test(code);
     if (!isValidObjectId) {
-      logData("Failure","Qr code scanning : Invalid QR code format ",{
-        "id":user._id,
-        "name":user.name,
-        "email":user.email,
-        "zealId":user.zealId
+      logData("Failure", "Qr code scanning : Invalid QR code format ", {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        zealId: user.zealId,
       });
-      return res.status(200).json({ message: "Invalid QR code format",scannedCodes:user.scannedCodes});
+      return res.status(200).json({
+        message: "Invalid QR code format",
+        scannedCodes: user.scannedCodes,
+      });
     }
     const scannedId = new ObjectId(code);
     const scannedUser = await userModel.findById(scannedId);
 
     if (!scannedUser) {
-      logData("Failure","Qr code scanning : Scanned User not found ",{
-        "id":user._id,
-        "name":user.name,
-        "email":user.email,
-        "zealId":user.zealId
+      logData("Failure", "Qr code scanning : Scanned User not found ", {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        zealId: user.zealId,
       });
-      return res.status(200).json({ message: "User not found",scannedCodes:user.scannedCodes});
+      return res
+        .status(200)
+        .json({ message: "User not found", scannedCodes: user.scannedCodes });
     }
 
     if (scannedId.equals(userId)) {
-      logData("Failure","Qr code scanning : Don't scan your own QR code ",{
-        "id":user._id,
-        "name":user.name,
-        "email":user.email,
-        "zealId":user.zealId
+      logData("Failure", "Qr code scanning : Don't scan your own QR code ", {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        zealId: user.zealId,
       });
-      return res.status(200).json({ message: "Don't scan your own QR code",scannedCodes:user.scannedCodes});
+      return res.status(200).json({
+        message: "Don't scan your own QR code",
+        scannedCodes: user.scannedCodes,
+      });
     }
 
     // Calculate gameDuration as the difference between the present time and startGame
     if (user.scannedCodes.includes(scannedId)) {
       logData("Failure", "Qr code scanning : QR code already scanned", {
-        "id": user._id,
-        "name": user.name,
-        "email": user.email,
-        "zealId": user.zealId
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        zealId: user.zealId,
       });
-      return res.status(200).json({ message: "QR code already scanned", scannedCodes: user.scannedCodes });
+      return res.status(200).json({
+        message: "QR code already scanned",
+        scannedCodes: user.scannedCodes,
+      });
     }
     if (user.started) {
       const currentTime = new Date();
       const gameDuration = currentTime - user.startGame;
       user.gameDuration = gameDuration;
-    }
-    else {
-      user.startGame= new Date();
-      user.started=true;
+    } else {
+      user.startGame = new Date();
+      user.started = true;
     }
 
     // Increment membersFound for the user who scanned the QR code
@@ -258,13 +286,16 @@ const scanQr = async (req, res) => {
     user.scannedCodes.push(scannedId);
     // Save the updated user document to the database
     await user.save();
-    logData("Success","Qr code scanned",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Qr code scanned", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
-    res.status(200).json({ message: "QR Code scanned successfully",scannedCodes:user.scannedCodes});
+    res.status(200).json({
+      message: "QR Code scanned successfully",
+      scannedCodes: user.scannedCodes,
+    });
   } catch (error) {
     if (error.name === "ValidationError") {
       const validationErrors = Object.values(error.errors).map(
@@ -276,7 +307,7 @@ const scanQr = async (req, res) => {
         .json({ message: "Validation Error", errors: validationErrors });
     } else {
       console.error(error);
-      console.log("Failure , Qr code scanning : Interval Server Error")
+      console.log("Failure , Qr code scanning : Interval Server Error");
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
@@ -298,11 +329,11 @@ const refreshLocation = async (req, res) => {
       query._id.$nin = user.scannedCodes; // Exclude users in scannedCodes list
     }
     const users = await userModel.find(query);
-    
+
     // Filter out users whose locationUpdate values are within the last 10 minutes
 
     // const currentTime = new Date(new Date().toUTCString());
-    const validUsers = users.filter(user => {
+    const validUsers = users.filter((user) => {
       // Check if latitude and longitude are both not equal to 0
       const isValidLocation = user.latitude !== 0 && user.longitude !== 0;
 
@@ -311,7 +342,7 @@ const refreshLocation = async (req, res) => {
       // const timeDifference = currentTime - locationUpdateIST;
 
       // Return true if location is valid and time difference is less than or equal to 10 minutes (600000 milliseconds)
-      return isValidLocation ;
+      return isValidLocation;
     });
 
     // Sort valid users by distance to the current user
@@ -351,22 +382,22 @@ const refreshLocation = async (req, res) => {
       ),
       avatar: nearestUser.avatar,
     }));
-    
+
     if (user.started == false) {
       user.started = true;
       user.startGame = new Date();
       await user.save();
     }
-    logData("Success","Location refresh request",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Location refresh request", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(200).json({ nearestUsers: nearestUsersInfo });
   } catch (error) {
     console.error(error);
-    console.log("Failure : Refresh location : Internal Server Error")
+    console.log("Failure : Refresh location : Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -390,16 +421,16 @@ const leaderboard = async (req, res) => {
       .find({ membersFound: 0 })
       .select("name membersFound avatar");
     usersInfo.push(...usersWithoutMembers);
-    logData("Success","Leaderboard request",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Leaderboard request", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(200).json({ users: usersInfo });
   } catch (error) {
     console.error(error);
-    console.log("Failure , Leaderboard Request : Internal Server Error")
+    console.log("Failure , Leaderboard Request : Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -410,26 +441,31 @@ const avatarGet = async (req, res) => {
     // Find the user by userId
     const user = await userModel.findById(userId);
     if (!user) {
-      console.log("Failure , Get Avatar request , User Not Found with userId: ",userId)
+      console.log(
+        "Failure , Get Avatar request , User Not Found with userId: ",
+        userId
+      );
       return res.status(404).json({ message: "User not found" });
     }
-    logData("Success","Avatar request",{
-      "id":user._id,
-      "name":user.name,
-      "email":user.email,
-      "zealId":user.zealId
+    logData("Success", "Avatar request", {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      zealId: user.zealId,
     });
     res.status(200).json({ avatar: user.avatar });
   } catch (error) {
     console.error(error);
-    console.log("Failure , Get Avatar : Internal Server Error")
+    console.log("Failure , Get Avatar : Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
 const timer = async (req, res) => {
   try {
     const currentDate = new Date();
-    const targetDate = new Date(`2024-05-${process.env.StartDate}T${process.env.StartHours}:${process.env.StartMinutes}:00`);
+    const targetDate = new Date(
+      `2024-05-${process.env.START_DATE}T${process.env.START_HOUR}:${process.env.START_MINUTES}:00`
+    );
     const timeDifference = targetDate - currentDate;
 
     if (timeDifference > 0) {
@@ -439,17 +475,15 @@ const timer = async (req, res) => {
         remainingTimeInMilliseconds: timeDifference,
       });
     } else {
-      res
-        .status(200)
-        .json({
-          message: "The game has already started",
-          startGame: true,
-          remainingTimeInMilliseconds: 0,
-        });
+      res.status(200).json({
+        message: "The game has already started",
+        startGame: true,
+        remainingTimeInMilliseconds: 0,
+      });
     }
   } catch (error) {
     console.error(error);
-    console.log("Failure : Timing request , Internal Server Error")
+    console.log("Failure : Timing request , Internal Server Error");
     res.status(500).json({ message: "Internal Server Error" });
   }
 };
@@ -463,5 +497,5 @@ module.exports = {
   leaderboard,
   avatarGet,
   timer,
-  logData
+  logData,
 };
